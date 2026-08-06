@@ -1,0 +1,182 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum UserStatus {
+  ACTIVE
+  PENDING
+  SUSPENDED
+}
+
+enum EventStatus {
+  UPCOMING
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
+enum AttendanceStatus {
+  PRESENT
+  LATE
+  ABSENT
+  EXCUSED
+}
+
+enum AttendanceMethod {
+  QR
+  MANUAL
+  SELF_CHECKIN
+}
+
+model User {
+  id           String     @id @default(uuid())
+  name         String
+  email        String     @unique
+  phone        String?
+  password     String
+  googleId     String?
+  roleId       String
+  role         Role       @relation(fields: [roleId], references: [id])
+  committeeId  String?
+  committee    Committee? @relation(fields: [committeeId], references: [id])
+  photo        String?
+  status       UserStatus @default(PENDING)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  attendances   Attendance[]
+  certificates  Certificate[]
+  auditLogs     AuditLog[]
+  notifications Notification[]
+  refreshTokens RefreshToken[]
+  createdEvents Event[]        @relation("EventCreator")
+  uploadedImages Image[]
+
+  @@map("users")
+}
+
+model Role {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  permissions String[]
+  users       User[]
+
+  @@map("roles")
+}
+
+model Committee {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  users       User[]
+
+  @@map("committees")
+}
+
+model Event {
+  id          String      @id @default(uuid())
+  title       String
+  description String?
+  venue       String
+  category    String
+  startTime   DateTime
+  endTime     DateTime
+  poster      String?
+  status      EventStatus @default(UPCOMING)
+  createdById String
+  createdBy   User        @relation("EventCreator", fields: [createdById], references: [id])
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  attendances  Attendance[]
+  images       Image[]
+  certificates Certificate[]
+
+  @@map("events")
+}
+
+model Attendance {
+  id          String           @id @default(uuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id])
+  eventId     String
+  event       Event            @relation(fields: [eventId], references: [id])
+  status      AttendanceStatus @default(PRESENT)
+  checkInTime DateTime         @default(now())
+  method      AttendanceMethod @default(QR)
+  device      String?
+  location    String?
+
+  @@unique([userId, eventId])
+  @@map("attendances")
+}
+
+model Image {
+  id         String   @id @default(uuid())
+  eventId    String?
+  event      Event?   @relation(fields: [eventId], references: [id])
+  imageUrl   String
+  thumbnail  String?
+  size       Int?
+  uploadedById String
+  uploadedBy User     @relation(fields: [uploadedById], references: [id])
+  uploadedAt DateTime @default(now())
+
+  @@map("images")
+}
+
+model Certificate {
+  id             String   @id @default(uuid())
+  eventId        String
+  event          Event    @relation(fields: [eventId], references: [id])
+  userId         String
+  user           User     @relation(fields: [userId], references: [id])
+  certificateUrl String
+  issuedAt       DateTime @default(now())
+
+  @@unique([userId, eventId])
+  @@map("certificates")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String
+  entity    String
+  oldValue  Json?
+  newValue  Json?
+  ip        String?
+  browser   String?
+  createdAt DateTime @default(now())
+
+  @@map("audit_logs")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  title     String
+  message   String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("notifications")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@map("refresh_tokens")
+}
