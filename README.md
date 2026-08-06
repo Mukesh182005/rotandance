@@ -2,18 +2,24 @@
 
 Enterprise Attendance, Event, and Member Management System for Rotaract Club of Atria IT.
 
-## Architecture
+---
 
-- **Frontend**: Next.js 16 (App Router, TypeScript, Tailwind CSS, TanStack Query, Zustand)
-- **Backend**: NestJS (TypeScript, Prisma ORM, PostgreSQL/Supabase, Redis, Passport JWT)
-- **Database**: PostgreSQL (Supabase)
-- **Storage**: Cloudinary & Google Drive
+## 🛠 Tech Stack & Deployment Architecture
 
-## Quick Start
+| Layer | Recommended Platform / Tool | Details |
+| :--- | :--- | :--- |
+| **Frontend Hosting** | ⭐ **Vercel** | Next.js 16 (App Router, Tailwind CSS, TanStack Query, Zustand) |
+| **Backend Hosting** | **Render (Free Tier)** | NestJS Backend API (TypeScript, Prisma ORM, Passport JWT) |
+| **Database** | ⭐ **Supabase** | PostgreSQL Database + Connection Pooling |
+| **Storage** | ⭐ **Supabase Storage** & **Cloudinary** | Images, Media Optimization & Documents |
+| **Authentication** | ⭐ **Supabase Auth** & **Passport JWT** | Authentication & RBAC Access Control |
 
-### 1. Install Dependencies & Run Development Mode
+---
 
-Run both Frontend and Backend concurrently from the root directory:
+## 🚀 Quick Start (Local Development)
+
+### 1. Run Development Mode
+Run both Frontend and Backend concurrently from the root workspace directory:
 
 ```bash
 npm run dev
@@ -31,18 +37,20 @@ cp .env.example backend/.env
 cp .env.example frontend/.env.local
 ```
 
-## Folder Structure
+---
+
+## 📁 Directory Structure
 
 ```
-Rotaract-Club-Management-System/
-├── frontend/                # Next.js Frontend
-├── backend/                 # NestJS Backend
-├── docs/                    # Architecture, API & User Documentation
+rotandance/
+├── frontend/                # Next.js 16 Frontend
+├── backend/                 # NestJS Backend API
+├── docs/                    # Architecture, API & Security Docs
 ├── database/                # ER Diagrams, SQL Scripts & Backups
 ├── docker/                  # Docker & Nginx Configurations
 ├── scripts/                 # Utility Automation Scripts
-├── .github/                 # GitHub Actions Workflows
+├── .github/                 # GitHub Actions CI/CD Workflows
 ├── storage/                 # Local Media Storage
-├── docker-compose.yml
+├── docker-compose.yml       # Container Orchestration
 └── package.json             # Workspace Script Launcher
 ```
